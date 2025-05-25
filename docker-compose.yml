@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-auth:latest
+    depends_on:
+      - db
+    environment:
+      # Database connection parts
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=auth
+      - DB_PASS=authpass
+      - DB_NAME=authdb
+      # Redis
+      - REDIS_ADDR=redis:6379
+      # JWT
+      - JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.KR6E66BRVk1j8i15Fb-fzC2TvwpW7KaVecszgW43l-w
+      # HTTP server
+      - PORT=8080
+      # optional
+      - READ_TIMEOUT=5s
+      - WRITE_TIMEOUT=10s
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: authpass
+      POSTGRES_DB: authdb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+
+volumes:
+  db_data:
